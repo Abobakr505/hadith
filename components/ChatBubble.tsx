@@ -29,6 +29,55 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message }) => {
     }
 
     const isNonAuthentic = sections.status?.includes('ضعيف') || sections.status?.includes('موضوع') || sections.status?.includes('لا أصل');
+    const authenticHadith = sections.alternative || (!isNonAuthentic ? sections.text : null);
+
+    const handleCopy = (textToCopy: string) => {
+      navigator.clipboard.writeText(textToCopy);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    };
+
+    const handleShare = (textToShare: string) => {
+      if (navigator.share) {
+        navigator.share({
+          title: 'حديث صحيح',
+          text: textToShare,
+        }).catch(console.error);
+      } else {
+        // Fallback: copy to clipboard if share not supported
+        handleCopy(textToShare);
+        alert('تم نسخ الحديث إلى الحافظة للمشاركة');
+      }
+    };
+
+    const renderActionButtons = (hadithText: string) => (
+      <div className="flex justify-end gap-3 mt-3">
+        <button
+          onClick={() => handleCopy(hadithText)}
+          className="group relative px-4 py-2 text-sm font-semibold text-white bg-emerald-600 rounded-full hover:bg-emerald-700 transition-all duration-300 ease-in-out transform hover:scale-105 shadow-md hover:shadow-lg flex items-center gap-2"
+        >
+          <svg className="w-4 h-4 transition-transform group-hover:rotate-12" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>
+          {copied ? 'تم النسخ!' : 'نسخ'}
+          <span className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-800 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
+            نسخ النص
+          </span>
+        </button>
+        <button
+          onClick={() => handleShare(hadithText)}
+          className="group relative px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-full hover:bg-blue-700 transition-all duration-300 ease-in-out transform hover:scale-105 shadow-md hover:shadow-lg flex items-center gap-2"
+        >
+          <svg className="w-4 h-4 transition-transform group-hover:rotate-12" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 13.938 9 14.482 9 15c0 .112-.002.224-.004.335M4 12V9a4 4 0 014-4h8a4 4 0 014 4v3m-4 5v3m-2-3v3m-2-3v3" />
+          </svg>
+          مشاركة
+          <span className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-800 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
+            مشاركة الحديث
+          </span>
+        </button>
+      </div>
+    );
 
     return (
       <div className="space-y-4 py-1">
@@ -44,6 +93,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message }) => {
           <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
             <h4 className="text-slate-500 text-[10px] font-bold mb-1 uppercase tracking-widest">🔹 نص الحديث المبحوث:</h4>
             <p className="hadith-font text-xl leading-relaxed text-slate-800 tracking-wide">«{sections.text}»</p>
+            {!sections.alternative && !isNonAuthentic && authenticHadith && renderActionButtons(authenticHadith)}
           </div>
         )}
 
@@ -74,6 +124,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message }) => {
           <div className="bg-emerald-50/60 p-4 rounded-xl border border-emerald-100 border-dashed">
             <h4 className="text-emerald-800 text-[10px] font-bold mb-1 flex items-center gap-1">✨ البديل الصحيح المعتمد:</h4>
             <p className="hadith-font text-lg leading-relaxed text-emerald-900 tracking-wide">«{sections.alternative}»</p>
+            {authenticHadith && renderActionButtons(authenticHadith)}
           </div>
         )}
 
