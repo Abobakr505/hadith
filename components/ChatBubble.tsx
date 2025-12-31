@@ -97,13 +97,13 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message }) => {
         }`}
       >
         <div className="flex items-center gap-2 mb-2 border-b border-white/10 pb-1">
-          <span className={`text-[10px] font-bold uppercase tracking-widest ${isUser ? 'text-emerald-100' : 'text-emerald-700'}`}>
+          <span className={`text-[13px] font-bold uppercase tracking-widest ${isUser ? 'text-emerald-100' : 'text-emerald-700'}`}>
             {isUser ? 'السائل' : 'المحقق الشرعي'}
           </span>
           <div className="flex-1"></div>
           
 
-          <span className={`text-[9px] opacity-60 ${isUser ? 'text-white' : 'text-slate-400'}`}>
+          <span className={`text-[12px] opacity-60 ${isUser ? 'text-white' : 'text-slate-400'}`}>
             {message.timestamp.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}
           </span>
         </div>

@@ -90,13 +90,14 @@ const App: React.FC = () => {
   const examples = [
     "من صام رمضان إيماناً واحتساباً",
     "حديث: من قرأ سورة يس في ليلة أصبح مغفوراً له",
-    "لا تزال طائفة من أمتي على الحق ظاهرين"
+    "لا تزال طائفة من أمتي على الحق ظاهرين" ,
+    "الجنه تحت اقدام الامهات "
   ];
 
   return (
     <div className="flex flex-col h-screen bg-slate-50 text-slate-900 overflow-hidden">
       {/* Header */}
-      <header className="bg-emerald-900 text-white px-6 py-4 shadow-xl flex items-center justify-between sticky top-0 z-30">
+      <header className="bg-emerald-900 text-white px-6 py-3 shadow-xl flex items-center justify-between sticky top-0 z-30">
         <div className="flex items-center gap-4">
           <div className="bg-emerald-800 p-2.5 rounded-2xl border border-emerald-700 shadow-inner">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-50"><path d="m11 17 2 2 4-4"/><path d="m3 10 2.5-2.5L3 5"/><path d="m3 19 2.5-2.5L3 14"/><path d="M10 6h11"/><path d="M10 12h11"/><path d="M10 18h11"/></svg>
