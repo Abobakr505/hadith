@@ -171,7 +171,7 @@ const App: React.FC = () => {
       >
         {messages.length === 1 && (
           <div className="flex flex-col items-center justify-center py-10 opacity-100 animate-in fade-in slide-in-from-top-6 duration-700">
-            <div className="bg-white/60 backdrop-blur-sm p-10 rounded-[3rem] shadow-[0_8px_30px_rgb(0,0,0,0.02)] border border-slate-100 text-center max-w-md mb-8">
+            <div className="bg-white/60 backdrop-blur-sm p-10 rounded-[3rem] shadow-[0_8px_30px_#05966933] border border-slate-100 text-center max-w-md mb-8">
               <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-8 border border-emerald-100 shadow-inner">
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
               </div>
@@ -233,7 +233,7 @@ const App: React.FC = () => {
       focus:outline-none resize-none
       text-sm sm:text-base
       leading-relaxed
-      text-slate-700
+      text-black
       placeholder-slate-300
       min-h-[48px] sm:min-h-[56px]
       max-h-40 sm:max-h-48
@@ -280,8 +280,8 @@ const App: React.FC = () => {
   </button>
 </div>
 
-        <p className="text-[12px] text-gray-400 text-center mt-3 font-tajawal">
-         ( نَضَّرَ اللهُ امْرَأً سَمِعَ مَقَالَتِي فَوَعَاهَا ‌حَتَّى ‌يُؤَدِّيهَا ‌إِلَى ‌مَنْ ‌لَمْ ‌يَسْمَعْهَا )
+        <p className="text-[12px] text-gray-500 text-center mt-3 font-tajawal">
+         ( نضر الله امرأ سمع مقالتي فوعاها حتى يؤديها إلى من لم يسمعها )
         </p> 
         <a href="https://bakrhasan.netlify.app/" target="_blank" rel="noopener noreferrer">
 <p className="flex justify-center gap-1 item-center flex-row text-xs md:text-sm text-gray-500 text-center mt-4 px-4 py-2 rounded-2xl bg-gradient-to-r from-blue-50 to-emerald-50 font-tajawal shadow-sm">

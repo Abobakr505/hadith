@@ -159,20 +159,20 @@ const renderActionButtons = (hadithText: string) => (
       >
         <div className="flex items-center gap-2 mb-2 border-b border-white/10 pb-1">
           <div className={`w-2 h-2 rounded-full animate-pulse ${isUser ? 'bg-teal-500' : 'bg-emerald-400'}`}></div>
-          <span className={`text-[10px] font-bold uppercase tracking-wider ${isUser ? 'text-teal-700' : 'text-emerald-700'}`}>
+          <span className={`text-[12px] font-bold uppercase tracking-wider ${isUser ? 'text-teal-700' : 'text-emerald-700'}`}>
             {isUser ? 'سؤال السائل' :'المحقق الشرعي'}
           </span>
           <div className="flex-1"></div>
           
 
-          <span className={`text-[12px] opacity-60 ${isUser ? 'text-white' : 'text-slate-400'}`}>
+          <span className={`text-[14px] opacity-60 ${isUser ? 'text-white' : 'text-slate-400'}`}>
             {message.timestamp.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}
           </span>
         </div>
 
         <div className="leading-relaxed">
           {isUser ? (
-            <div className="whitespace-pre-wrap text-sm md:text-base font-medium">{message.content}</div>
+            <div className="whitespace-pre-wrap text-sm md:text-base font-medium text-black">{message.content}</div>
           ) : (
             renderStructuredContent(message.content)
           )}
