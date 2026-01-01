@@ -184,7 +184,7 @@ const renderActionButtons = (hadithText: string) => (
                 <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce [animation-delay:-.3s]"></div>
                 <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce [animation-delay:-.5s]"></div>
               </div>
-              <span className="text-[12px] text-emerald-800 font-bold">جاري مراجعة المصادر...</span>
+              <span className="text-[12px] text-emerald-800 font-bold">جاري مراجعة المصادر الشرعيه ...</span>
             </div>
           )}
         </div>
