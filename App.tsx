@@ -24,6 +24,11 @@ const [messages, setMessages] = useState<Message[]>(() => {
   }));
 });
 
+useEffect(() => {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem('hadith-chat', JSON.stringify(messages));
+}, [messages]);
+
 
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -143,7 +148,7 @@ useEffect(() => {
   backdrop-blur-md
   text-white
   px-6 py-3
-  shadow-[0_10px_30px_-10px_rgba(0,0,0,0.6)]
+  shadow-[0_10px_10px_-10px_rgba(0,0,0,0.6)]
   border-b border-emerald-700/50
 ">
   <div className="flex items-center justify-between">
