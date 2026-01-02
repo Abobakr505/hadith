@@ -165,7 +165,7 @@ const renderActionButtons = (hadithText: string) => (
           <div className="flex-1"></div>
           
 
-          <span className={`text-[14px] opacity-60 ${isUser ? 'text-white' : 'text-slate-400'}`}>
+          <span className='text-[14px] opacity-60 text-slate-400' >
             {message.timestamp.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}
           </span>
         </div>
