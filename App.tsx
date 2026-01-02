@@ -4,18 +4,35 @@ import { hadithService } from './services/geminiService';
 import ChatBubble from './components/ChatBubble';
 
 const App: React.FC = () => {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: 'welcome',
-      role: 'assistant',
+const [messages, setMessages] = useState<Message[]>(() => {
+  const saved = localStorage.getItem('hadith-chat');
+
+  if (!saved) {
+    return [
+      {
+        id: 'welcome',
+        role: 'assistant',
       content: 'السلام عليكم ورحمة الله وبركاته. أنا مساعدك المتخصص في التحقق من صحة الأحاديث النبوية.\nتفضل بكتابة نص الحديث المبحوث عنه، وسأوافيك بحكم المحدثين عليه.',
-      timestamp: new Date()
-    }
-  ]);
+        timestamp: new Date()
+      }
+    ];
+  }
+
+  return JSON.parse(saved).map((msg: Message) => ({
+    ...msg,
+    timestamp: new Date(msg.timestamp), // 🔥 التحويل المهم
+  }));
+});
+
+
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+const [toast, setToast] = useState<string | null>(null);
+
+
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -86,6 +103,28 @@ const App: React.FC = () => {
       if (textareaRef.current) textareaRef.current.style.height = 'auto';
     }
   };
+  const clearChat = () => {
+    setMessages([
+      {
+        id: 'welcome',
+        role: 'assistant',
+        content: 'السلام عليكم ورحمة الله وبركاته. أنا مساعدك المتخصص في التحقق من صحة الأحاديث النبوية.\nتفضل بكتابة نص الحديث المبحوث عنه، وسأوافيك بحكم المحدثين عليه.',
+        timestamp: new Date()
+      }
+    ]);
+  };
+  const handleClearConfirm = () => {
+  clearChat();
+  setShowClearConfirm(false);
+  setToast('تم مسح المحادثة بنجاح');
+};
+
+useEffect(() => {
+  if (!toast) return;
+  const t = setTimeout(() => setToast(null), 2500);
+  return () => clearTimeout(t);
+}, [toast]);
+
 
   const examples = [
     "من صام رمضان إيماناً واحتساباً",
@@ -95,6 +134,7 @@ const App: React.FC = () => {
   ];
 
   return (
+  <>
     <div className="flex flex-col h-screen bg-slate-50 text-slate-900 overflow-hidden">
 {/* Header */}
 <header className="
@@ -137,6 +177,28 @@ const App: React.FC = () => {
         </p>
       </div>
     </div>
+    <div className="flex items-center gap-3"> 
+<button 
+  onClick={() => {
+  if (messages.length > 1) {
+    setShowClearConfirm(true);
+  }
+}}
+
+className={`sm:flex items-center gap-2 text-[11px] font-bold px-3 py-2 rounded-xl transition
+  ${messages.length > 1
+    ? 'bg-emerald-950/50 text-emerald-200 hover:text-rose-500 hover:bg-rose-50'
+    : 'bg-slate-800/30 text-slate-500 cursor-not-allowed'
+  }`}
+>
+  <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 6h18"/>
+    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+    <line x1="10" y1="11" x2="10" y2="17"/>
+    <line x1="14" y1="11" x2="14" y2="17"/>
+  </svg>
+</button>
 
     {/* Right */}
     <div className="
@@ -148,6 +210,7 @@ const App: React.FC = () => {
       border border-emerald-700/60
       backdrop-blur
     ">
+      
       <span className="
         w-2 h-2
         bg-green-400
@@ -160,6 +223,7 @@ const App: React.FC = () => {
       </span>
     </div>
 
+  </div>
   </div>
 </header>
 
@@ -294,6 +358,50 @@ const App: React.FC = () => {
         </div>
       </footer>
     </div>
+    {showClearConfirm && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+    <div className="bg-white rounded-3xl shadow-xl p-6 w-[90%] max-w-sm text-center animate-fadeIn">
+      
+      <div className="w-12 h-12 mx-auto mb-4 flex items-center justify-center rounded-full bg-rose-100 text-rose-600">
+        🗑️
+      </div>
+
+      <h3 className="text-sm font-bold text-slate-700 mb-2">
+        تأكيد مسح المحادثة
+      </h3>
+
+      <p className="text-xs text-slate-500 leading-relaxed mb-6">
+        هل أنت متأكد من رغبتك في مسح المحادثة؟  
+        لا يمكن التراجع عن هذا الإجراء.
+      </p>
+
+      <div className="flex gap-3 justify-center">
+        <button
+          onClick={() => setShowClearConfirm(false)}
+          className="px-4 py-2 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition"
+        >
+          إلغاء
+        </button>
+
+        <button
+onClick={handleClearConfirm}
+          className="px-4 py-2 text-xs font-bold rounded-xl bg-rose-500 text-white hover:bg-rose-600 transition"
+        >
+          نعم، مسح
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+{toast && (
+  <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50
+    bg-emerald-600 text-white text-xs px-5 py-3 rounded-full shadow-lg
+    animate-in fade-in slide-in-from-bottom-4 duration-300">
+    {toast}
+  </div>
+)}
+
+</>
   );
 };
 
