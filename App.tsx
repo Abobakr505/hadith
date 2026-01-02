@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Message } from './types';
 import { hadithService } from './services/geminiService';
 import ChatBubble from './components/ChatBubble';
+import { Sparkle } from 'lucide-react';
 
 const App: React.FC = () => {
 const [messages, setMessages] = useState<Message[]>(() => {
@@ -245,8 +246,8 @@ className={`sm:flex items-center gap-2 text-[11px] font-bold px-3 py-2 rounded-x
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
               </div>
               <h3 className="font-extrabold text-xl text-slate-800 mb-3">كيف يمكنني مساعدتك؟</h3>
-              <p className="text-slate-500 text-sm mb-8 leading-relaxed font-medium px-4">أدخل نص الحديث أو جزءاً منه للتأكد من درجته العلمية وتخريجه المعتمد.</p>
-              <p className="text-emerald-500 text-sm mb-8 leading-relaxed font-medium px-4"><span className="text-teal-500">✦</span>  من الممكن لك ايضاً السوأل عن حديث أو حكم شرعي  </p>
+              <p className="text-slate-500 text-sm mb-4 leading-relaxed font-medium px-4">أدخل نص الحديث أو جزءاً منه للتأكد من درجته العلمية وتخريجه المعتمد.</p>
+              <p className="text-emerald-500 text-sm mb-6 leading-relaxed font-medium px-4 flex items-center gap-2 flex-row"><Sparkle className="w-[12px] h-[12px] text-teal-500" />  من الممكن لك ايضاً السوأل عن حديث أو حكم شرعي  </p>
              
               <div className="grid grid-cols-1 gap-2">
                 {examples.map((ex, i) => (
