@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Message } from '../types';
-import { Share2 } from 'lucide-react';
+import { BadgeCheck, BadgeQuestionMark, BookCheck, NotebookPen, Share2, Sparkles, TriangleAlert } from 'lucide-react';
 
 interface ChatBubbleProps {
   message: Message;
@@ -101,7 +101,7 @@ const renderActionButtons = (hadithText: string) => (
 
         {sections.text && (
           <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-            <h4 className="text-slate-500 text-[10px] font-bold mb-1 uppercase tracking-widest">🔹 نص الحديث المبحوث:</h4>
+            <h4 className="text-slate-500 text-[10px] font-bold mb-1 uppercase tracking-widest flex items-center gap-1 flex-row"><BadgeQuestionMark  className="w-[12px] h-[12px] text-slate-700" /> نص الحديث المبحوث:</h4>
             <p className="hadith-font text-xl leading-relaxed text-slate-800 tracking-wide">«{sections.text}»</p>
             {!sections.alternative && !isNonAuthentic && authenticHadith && renderActionButtons(authenticHadith)}
           </div>
@@ -110,14 +110,14 @@ const renderActionButtons = (hadithText: string) => (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {sections.source && (
             <div className="bg-blue-50/30 p-3 rounded-xl border border-blue-100/50">
-              <h4 className="text-blue-800 text-[10px] font-bold mb-1 flex items-center gap-1">📘 التخريج:</h4>
+              <h4 className="text-blue-800 text-[10px] font-bold mb-1 flex items-center gap-1"><BookCheck  className="w-[12px] h-[12px] text-blue-500" /> التخريج:</h4>
               <p className="text-xs text-slate-700 leading-relaxed">{sections.source}</p>
             </div>
           )}
           
           {sections.grade && (
-            <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
-              <h4 className="text-slate-700 text-[10px] font-bold mb-1 flex items-center gap-1">✅ حكم المحدثين:</h4>
+            <div className="bg-teal-50/30  p-3 rounded-xl border border-teal-100/50">
+              <h4 className="text-teal-700 text-[10px] font-bold mb-1 flex items-center gap-1"><BadgeCheck   className="w-[12px] h-[12px] text-teal-500" /> حكم المحدثين: </h4>
               <p className="text-xs text-slate-700 leading-relaxed">{sections.grade}</p>
             </div>
           )}
@@ -125,14 +125,14 @@ const renderActionButtons = (hadithText: string) => (
 
         {sections.reason && (
           <div className="bg-red-50/40 p-3 rounded-xl border border-red-100">
-            <h4 className="text-red-800 text-[10px] font-bold mb-1">⚠️ علة الحديث:</h4>
+            <h4 className="text-red-800 text-[10px] font-bold mb-1 flex items-center gap-1 flex-row"><TriangleAlert  className="w-[12px] h-[12px] text-red-500" /> علة الحديث:</h4>
             <p className="text-xs text-slate-700 italic leading-relaxed">{sections.reason}</p>
           </div>
         )}
 
         {sections.alternative && (
           <div className="bg-emerald-50/60 p-4 rounded-xl border border-emerald-100 border-dashed">
-            <h4 className="text-emerald-800 text-[10px] font-bold mb-1 flex items-center gap-1">✨ البديل الصحيح المعتمد:</h4>
+            <h4 className="text-emerald-800 text-[10px] font-bold mb-1 flex items-center gap-1"><Sparkles   className="w-[12px] h-[12px] text-emerald-400" /> البديل الصحيح المعتمد:</h4>
             <p className="hadith-font text-lg leading-relaxed text-emerald-900 tracking-wide">«{sections.alternative}»</p>
             {authenticHadith && renderActionButtons(authenticHadith)}
           </div>
@@ -140,7 +140,7 @@ const renderActionButtons = (hadithText: string) => (
 
         {sections.note && (
           <div className="bg-amber-50/30 p-3 rounded-xl border border-amber-100">
-            <h4 className="text-amber-800 text-[10px] font-bold mb-1">📝 فائدة توضيحية:</h4>
+            <h4 className="text-amber-800 text-[10px] font-bold mb-1 flex items-center gap-1 flex-row"><NotebookPen    className="w-[12px] h-[12px] text-amber-500" /> فائدة توضيحية:</h4>
             <p className="text-xs text-slate-700 leading-relaxed font-medium">{sections.note}</p>
           </div>
         )}
