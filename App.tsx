@@ -132,9 +132,9 @@ useEffect(() => {
 
 
   const examples = [
+    "هل هناك حديث يحرم الكذب ؟",
     "من صام رمضان إيماناً واحتساباً",
-    "حديث: من قرأ سورة يس في ليلة أصبح مغفوراً له",
-    "لا تزال طائفة من أمتي على الحق ظاهرين" ,
+    "صلاة قيام الليل  سريه أم جهريه ؟" ,
     "الجنه تحت اقدام الامهات "
   ];
 
@@ -246,12 +246,14 @@ className={`sm:flex items-center gap-2 text-[11px] font-bold px-3 py-2 rounded-x
               </div>
               <h3 className="font-extrabold text-xl text-slate-800 mb-3">كيف يمكنني مساعدتك؟</h3>
               <p className="text-slate-500 text-sm mb-8 leading-relaxed font-medium px-4">أدخل نص الحديث أو جزءاً منه للتأكد من درجته العلمية وتخريجه المعتمد.</p>
+              <p className="text-emerald-500 text-sm mb-8 leading-relaxed font-medium px-4"><span className="text-teal-500">✦</span>  من الممكن لك ايضاً السوأل عن حديث أو حكم شرعي  </p>
+             
               <div className="grid grid-cols-1 gap-2">
                 {examples.map((ex, i) => (
                   <button 
                     key={i}
                     onClick={() => setInput(ex)}
-                    className="text-[11px] bg-white text-slate-600 px-5 py-3 rounded-2xl hover:bg-emerald-50 hover:text-emerald-700 transition-all border border-slate-100 hover:border-emerald-200 font-bold active:scale-[0.98] shadow-sm text-right flex items-center gap-3"
+                    className="text-[12px] bg-white text-slate-600 px-5 py-3 rounded-2xl hover:bg-emerald-50 hover:text-emerald-700 transition-all border border-slate-100 hover:border-emerald-200 font-bold active:scale-[0.98] shadow-sm text-right flex items-center gap-3"
                   >
                     <span className="text-emerald-300">✦</span>
                     {ex}
