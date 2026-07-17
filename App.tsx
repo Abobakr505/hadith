@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Message } from './types';
-import { hadithService } from './services/geminiService';
+import { hadithService } from './services/hadithService';
 import ChatBubble from './components/ChatBubble';
 import { Sparkle } from 'lucide-react';
 
@@ -367,7 +367,7 @@ className={`sm:flex items-center gap-2 text-[11px] font-bold px-3 py-2 rounded-x
         <p className="text-[12px] text-gray-500 text-center mt-3 font-tajawal">
          ( نضر الله امرأ سمع مقالتي فوعاها حتى يؤديها إلى من لم يسمعها )
         </p> 
-        <a href="https://bakrhasan.netlify.app/" target="_blank" rel="noopener noreferrer">
+        <a href="https://bakrhasan.vercel.app/" target="_blank" rel="noopener noreferrer">
 <p className="flex justify-center gap-1 item-center flex-row text-xs md:text-sm text-gray-500 text-center mt-4 px-4 py-2 rounded-2xl bg-gradient-to-r from-blue-50 to-emerald-50 font-tajawal shadow-sm">
   صُمِّم وطُوِّر بكل  
   <span className="animate-pulse">💚</span>
