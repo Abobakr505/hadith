@@ -38,7 +38,7 @@ export class HadithService {
     while (attempt < retries) {
       try {
         const response: GenerateContentResponse = await this.ai.models.generateContent({
-          model: 'gemini-2.5-flash',  // تغيير إلى نموذج صالح ومتوفر في 2025، بدلاً من 'gemini-1.5-flash' الذي أصبح غير مدعوم
+          model: 'gemini-2.0-flash',  // تغيير إلى نموذج صالح ومتوفر في 2025، بدلاً من 'gemini-1.5-flash' الذي أصبح غير مدعوم
           contents: prompt,
           config: {
             systemInstruction: SYSTEM_INSTRUCTION,
