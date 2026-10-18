@@ -1,226 +1,243 @@
 import React, { useState } from 'react';
-import { Message } from '../types';
-import { BadgeCheck, BadgeQuestionMark, BookCheck, NotebookPen, Share2, Sparkles, TriangleAlert } from 'lucide-react';
+import {
+  BookCheck, BookOpenCheck, Check, ChevronDown, Copy, Library, Link2, NotebookPen,
+  ScrollText, ShieldAlert, ShieldCheck, Share2, Sparkles, Star, UserRound,
+} from 'lucide-react';
+import { GradeLevel, HadithItem, Message } from '../types';
 
-interface ChatBubbleProps {
+interface Props {
   message: Message;
+  isFav: (id: string) => boolean;
+  onToggleFav: (h: HadithItem) => void;
+  onToast: (t: string) => void;
 }
 
-const ChatBubble: React.FC<ChatBubbleProps> = ({ message }) => {
-  const isUser = message.role === 'user';
-  const [copied, setCopied] = useState(false);
+const LEVEL_LABEL: Record<GradeLevel, string> = {
+  sahih: 'صحيح',
+  hasan: 'حسن',
+  daif: 'ضعيف',
+  mawdu: 'موضوع / لا أصل له',
+  unknown: 'غير محدد',
+};
 
-  const extractSections = (content: string) => {
-    return {
-      text: content.match(/\[TEXT\]:(.*?)(?=\[STATUS\]|\[SOURCE\]|\[GRADE\]|\[WEAKNESS_REASON\]|\[ALTERNATIVE\]|\[LINKS\]|\[NOTE\]|\[HADITH_END\]|$)/s)?.[1]?.trim(),
-      status: content.match(/\[STATUS\]:(.*?)(?=\[TEXT\]|\[SOURCE\]|\[GRADE\]|\[WEAKNESS_REASON\]|\[ALTERNATIVE\]|\[LINKS\]|\[NOTE\]|\[HADITH_END\]|$)/s)?.[1]?.trim(),
-      source: content.match(/\[SOURCE\]:(.*?)(?=\[TEXT\]|\[STATUS\]|\[GRADE\]|\[WEAKNESS_REASON\]|\[ALTERNATIVE\]|\[LINKS\]|\[NOTE\]|\[HADITH_END\]|$)/s)?.[1]?.trim(),
-      grade: content.match(/\[GRADE\]:(.*?)(?=\[TEXT\]|\[STATUS\]|\[SOURCE\]|\[WEAKNESS_REASON\]|\[ALTERNATIVE\]|\[LINKS\]|\[NOTE\]|\[HADITH_END\]|$)/s)?.[1]?.trim(),
-      reason: content.match(/\[WEAKNESS_REASON\]:(.*?)(?=\[TEXT\]|\[STATUS\]|\[SOURCE\]|\[GRADE\]|\[ALTERNATIVE\]|\[LINKS\]|\[NOTE\]|\[HADITH_END\]|$)/s)?.[1]?.trim(),
-      alternative: content.match(/\[ALTERNATIVE\]:(.*?)(?=\[TEXT\]|\[STATUS\]|\[SOURCE\]|\[GRADE\]|\[WEAKNESS_REASON\]|\[LINKS\]|\[NOTE\]|\[HADITH_END\]|$)/s)?.[1]?.trim(),
-      note: content.match(/\[NOTE\]:(.*?)(?=\[TEXT\]|\[STATUS\]|\[SOURCE\]|\[GRADE\]|\[WEAKNESS_REASON\]|\[ALTERNATIVE\]|\[LINKS\]|\[NOTE\]|\[HADITH_END\]|$)/s)?.[1]?.trim(),
-    };
+export const formatForShare = (h: HadithItem) =>
+  `«${h.text}»\n\n` +
+  [
+    h.rawi && `الراوي: ${h.rawi}`,
+    h.muhaddith && `المحدث: ${h.muhaddith}`,
+    h.source && `المصدر: ${h.source}${h.page ? ' - ' + h.page : ''}`,
+    h.grade && `الحكم: ${h.grade}`,
+  ]
+    .filter(Boolean)
+    .join('\n') +
+  '\n\n— محقّق الأحاديث';
+
+const HadithCard: React.FC<{
+  item: HadithItem;
+  variant: 'main' | 'alt' | 'other';
+  index?: number;
+  fav: boolean;
+  onFav: () => void;
+  onToast: (t: string) => void;
+}> = ({ item, variant, index = 0, fav, onFav, onToast }) => {
+  const [copied, setCopied] = useState(false);
+  const good = item.level === 'sahih' || item.level === 'hasan';
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(formatForShare(item));
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    } catch {
+      onToast('تعذر النسخ');
+    }
   };
 
-  const renderStructuredContent = (content: string) => {
-    const sections = extractSections(content);
-
-    if (!sections.text && !sections.status) {
-      return <div className="whitespace-pre-wrap leading-relaxed text-sm md:text-base">{content}</div>;
+  const share = async () => {
+    if (navigator.share) {
+      navigator.share({ title: 'حديث', text: formatForShare(item) }).catch(() => {});
+    } else {
+      await copy();
+      onToast('تم نسخ الحديث للمشاركة');
     }
+  };
 
-    const isNonAuthentic = sections.status?.includes('ضعيف') || sections.status?.includes('موضوع') || sections.status?.includes('لا أصل');
-    const authenticHadith = sections.alternative || (!isNonAuthentic ? sections.text : null);
-
-    const handleCopy = (textToCopy: string) => {
-      navigator.clipboard.writeText(textToCopy);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    };
-
-    const handleShare = (textToShare: string) => {
-      if (navigator.share) {
-        navigator.share({
-          title: 'حديث صحيح',
-          text: textToShare,
-        }).catch(console.error);
-      } else {
-        // Fallback: copy to clipboard if share not supported
-        handleCopy(textToShare);
-        alert('تم نسخ الحديث إلى الحافظة للمشاركة');
-      }
-    };
-
-const renderActionButtons = (hadithText: string) => (
-  <div className="flex justify-end gap-2 mt-3">
-    
-    {/* زر النسخ */}
-    <button
-      onClick={() => handleCopy(hadithText)}
-      className={`p-1.5 rounded-lg transition-all
-        ${copied
-          ? 'bg-teal-100 text-emerald-600'
-          : 'hover:bg-teal-100 text-slate-400 hover:scale-110 '}
-      `}
-      title="نسخ الحديث"
+  return (
+    <div
+      className={`hx-hcard hx-lv-${item.level} ${variant === 'alt' ? 'alt' : ''} hx-up`}
+      style={{ animationDelay: `${index * 0.12}s` }}
     >
-      {copied ? (
-        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="20 6 9 17 4 12"/>
-        </svg>
-      ) : (
-        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-        </svg>
-      )}
-    </button>
-
-    {/* زر المشاركة */}
-    <button
-      onClick={() => handleShare(hadithText)}
-      className="p-1.5 rounded-lg transition-all hover:scale-110 hover:bg-teal-100 text-slate-400"
-      title="مشاركة الحديث"
-    >
-      <Share2 className="w-[15px] h-[15px]" />
-    </button>
-
-  </div>
-);
-
-
-    return (
-      <div className="space-y-4 py-1">
-        {sections.status && (
-          <div className={`text-center py-2 px-6 rounded-full font-bold text-sm border shadow-sm ${
-            isNonAuthentic ? 'bg-red-50 text-red-700 border-red-100' : 'bg-emerald-50 text-emerald-700 border-emerald-100'
-          }`}>
-             الدرجة: {sections.status}
-          </div>
-        )}
-
-        {sections.text && (
-          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-            <h4 className="flex items-center gap-1 text-[10px] font-bold leading-none  mb-1 text-slate-500 uppercase tracking-widest">
-              <BadgeQuestionMark className="w-3 h-3 shrink-0 text-slate-700" />
-              <span className="relative top-[0.5px]">نص الحديث المبحوث:</span>
-            </h4>
-            <p className="hadith-font text-xl leading-relaxed text-slate-800 tracking-wide">«{sections.text}»</p>
-            {!sections.alternative && !isNonAuthentic && authenticHadith && renderActionButtons(authenticHadith)}
-          </div>
-        )}
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {sections.source && (
-            <div className="bg-blue-50/30 p-3 rounded-xl border border-blue-100/50">
-              <h4 className="flex items-center gap-1 text-[10px] font-bold leading-none text-blue-800 mb-1 ">
-                <BookCheck className="w-3 h-3 shrink-0 text-blue-500" />
-                <span className="relative top-[0.5px]">التخريج:</span>
-              </h4>
-              <p className="text-xs text-slate-700 leading-relaxed">{sections.source}</p>
-            </div>
-          )}
-          
-          {sections.grade && (
-            <div className="bg-teal-50/30  p-3 rounded-xl border border-teal-100/50">
-              <h4 className="flex items-center gap-1 text-[10px] font-bold leading-none text-teal-700 mb-1 ">
-                <BadgeCheck className="w-3 h-3 shrink-0 text-teal-500" />
-                <span className="relative top-[0.5px]">حكم المحدثين:</span>
-              </h4>
-              <p className="text-xs text-slate-700 leading-relaxed">{sections.grade}</p>
-            </div>
+      <span className="hx-quote">”</span>
+      <div style={{ padding: '1rem 1.2rem 0.6rem 1rem' }}>
+        <div className="mb-3 flex flex-wrap items-center gap-2">
+          <span className="hx-lvchip hx-pop">
+            {good ? <ShieldCheck size={15} /> : <ShieldAlert size={15} />}
+            {LEVEL_LABEL[item.level]}
+          </span>
+          {variant === 'alt' && (
+            <span className="hx-lvchip hx-lv-sahih">
+              <Sparkles size={14} /> البديل الصحيح
+            </span>
           )}
         </div>
 
-        {sections.reason && (
-          <div className="bg-red-50/40 p-3 rounded-xl border border-red-100">
-            <h4 className="flex items-center gap-1 text-[10px] font-bold leading-none text-red-800 mb-1 ">
-              <TriangleAlert className="w-3 h-3 shrink-0 text-red-500" />
-              <span className="relative top-[0.5px]">علة الحديث:</span>
+        <p className="hx-t-hadith hadith-font" style={{ margin: 0 }}>«{item.text}»</p>
+
+        <div className="hx-t-small mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+          {item.rawi && (
+            <div className="hx-field"><UserRound size={15} className="mt-1 shrink-0" /><span><b>الراوي:</b> {item.rawi}</span></div>
+          )}
+          {item.muhaddith && (
+            <div className="hx-field"><Library size={15} className="mt-1 shrink-0" /><span><b>المحدّث:</b> {item.muhaddith}</span></div>
+          )}
+          {item.source && (
+            <div className="hx-field sm:col-span-2"><BookCheck size={15} className="mt-1 shrink-0" /><span><b>التخريج:</b> {item.source}{item.page ? ` — ${item.page}` : ''}</span></div>
+          )}
+          {item.grade && (
+            <div className="hx-field sm:col-span-2"><ScrollText size={15} className="mt-1 shrink-0" /><span><b>الحكم:</b> {item.grade}</span></div>
+          )}
+        </div>
+
+        <div className="mt-3 flex justify-end gap-1" style={{ borderTop: '1px solid var(--line)', paddingTop: '.4rem' }}>
+          <button className={`hx-act ${fav ? 'fav' : ''}`} onClick={onFav} title="حفظ في المفضلة">
+            <Star size={18} fill={fav ? 'currentColor' : 'none'} />
+          </button>
+          <button className={`hx-act ${copied ? 'ok' : ''}`} onClick={copy} title="نسخ">
+            {copied ? <Check size={18} /> : <Copy size={18} />}
+          </button>
+          <button className="hx-act" onClick={share} title="مشاركة">
+            <Share2 size={18} />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ChatBubble: React.FC<Props> = ({ message, isFav, onToggleFav, onToast }) => {
+  const isUser = message.role === 'user';
+  const [showMore, setShowMore] = useState(false);
+  const r = message.result;
+
+  const renderBody = () => {
+    if (message.status === 'loading') {
+      return (
+        <div className="hx-fade">
+          <div className="mb-4 flex items-center gap-3">
+            <div className="hx-dotsload"><i /><i /><i /></div>
+            <span className="hx-t-small" style={{ fontWeight: 800, color: 'var(--brand2)' }}>
+              {message.content || 'جاري مراجعة المصادر الشرعية ...'}
+            </span>
+          </div>
+          <div className="space-y-2">
+            <div className="hx-skel" style={{ width: '92%' }} />
+            <div className="hx-skel" style={{ width: '78%' }} />
+            <div className="hx-skel" style={{ width: '60%' }} />
+          </div>
+        </div>
+      );
+    }
+
+    if (!r) {
+      return <div className="hx-t-body whitespace-pre-wrap">{message.content}</div>;
+    }
+
+    const [main, ...others] = r.hadiths;
+
+    return (
+      <div className="space-y-3">
+        {r.summary && (
+          <div className="hx-summary hx-up">
+            <h4 className="hx-h" style={{ color: 'var(--brand2)' }}>
+              <Sparkles size={15} />
+              {r.hadiths.length === 0 ? 'ملاحظة' : 'الخلاصة'}
             </h4>
-            <p className="text-xs text-slate-700 italic leading-relaxed">{sections.reason}</p>
+            <p className="hx-t-body whitespace-pre-wrap" style={{ margin: 0 }}>{r.summary}</p>
           </div>
         )}
 
-        {sections.alternative && (
-          <div className="bg-emerald-50/60 p-4 rounded-xl border border-emerald-100 border-dashed">
-            <h4 className="flex items-center gap-1 text-[10px] font-bold leading-none text-emerald-800 mb-1 ">
-              <Sparkles className="w-3 h-3 shrink-0 text-emerald-400" />
-              <span className="relative top-[0.5px]">البديل الصحيح المعتمد:</span>
-            </h4>
-            <p className="hadith-font text-lg leading-relaxed text-emerald-900 tracking-wide">«{sections.alternative}»</p>
-            {authenticHadith && renderActionButtons(authenticHadith)}
+        {main && (
+          <HadithCard item={main} variant="main" index={1} fav={isFav(main.id)} onFav={() => onToggleFav(main)} onToast={onToast} />
+        )}
+
+        {r.alternative && (
+          <HadithCard item={r.alternative} variant="alt" index={2} fav={isFav(r.alternative.id)} onFav={() => onToggleFav(r.alternative!)} onToast={onToast} />
+        )}
+
+        {others.length > 0 && (
+          <div>
+            <button className="hx-more" onClick={() => setShowMore((s) => !s)}>
+              <span>نتائج أخرى مشابهة ({others.length})</span>
+              <ChevronDown size={18} style={{ transition: 'transform .3s', transform: showMore ? 'rotate(180deg)' : 'none' }} />
+            </button>
+            {showMore && (
+              <div className="mt-3 space-y-3">
+                {others.map((h, i) => (
+                  <HadithCard key={h.id} item={h} variant="other" index={i} fav={isFav(h.id)} onFav={() => onToggleFav(h)} onToast={onToast} />
+                ))}
+              </div>
+            )}
           </div>
         )}
 
-        {sections.note && (
-          <div className="bg-amber-50/30 p-3 rounded-xl border border-amber-100">
-            <h4 className="flex items-center gap-1 text-[10px] font-bold leading-none text-amber-800 mb-1 ">
-              <NotebookPen className="w-3 h-3 shrink-0 text-amber-500" />
-              <span className="relative top-[0.5px]">فائدة توضيحية:</span>
-            </h4>
-            <p className="text-xs text-slate-700 leading-relaxed font-medium">{sections.note}</p>
+        {r.note && (
+          <div className="hx-note hx-up" style={{ animationDelay: '.25s' }}>
+            <h4 className="hx-h" style={{ color: 'var(--gold)' }}><NotebookPen size={15} /> فائدة توضيحية</h4>
+            <p className="hx-t-small" style={{ margin: 0 }}>{r.note}</p>
           </div>
+        )}
+
+        {r.hadiths.length === 0 && !r.summary && (
+          <p className="hx-t-body" style={{ color: 'var(--muted)' }}>
+            لم أجد نتيجة دقيقة. جرّب كتابة جزء أطول من نص الحديث أو كلمات مفتاحية أوضح.
+          </p>
+        )}
+
+        {r.hadiths.length > 0 && (
+          <p className="hx-t-tiny" style={{ color: 'var(--muted)'}}>
+            {r.mode === 'dorar+ai'
+              ? 'المصدر: الدرر السنية + تحليل ذكي'
+              : r.mode === 'dorar'
+              ? 'المصدر: الدرر السنية'
+              : 'نتيجة آلية بالبحث والذكاء الاصطناعي، راجع المصادر قبل النشر'}
+            {' — '}يُرجى الرجوع لأهل العلم عند الحاجة.
+          </p>
         )}
       </div>
     );
   };
 
   return (
-    <div className={`flex w-full mb-6 ${isUser ? 'justify-start' : 'justify-end'} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
-      <div 
-        className={`max-w-[92%] md:max-w-[80%] p-5 rounded-[2rem] shadow-sm border transition-all relative ${
-          isUser 
-            ? 'bg-emerald-50 text-emerald-900 border-emerald-100 rounded-br-none' 
-            : 'bg-white border-slate-100 text-slate-800 rounded-bl-none shadow-[0_4px_20px_-5px_rgba(0,0,0,0.03)]'
-        }`}
-      >
-        <div className="flex items-center gap-2 mb-2 border-b border-white/10 pb-1">
-          <div className={`w-2 h-2 rounded-full animate-pulse ${isUser ? 'bg-teal-500' : 'bg-emerald-400'}`}></div>
-          <span className={`text-[12px] font-bold uppercase tracking-wider ${isUser ? 'text-teal-700' : 'text-emerald-700'}`}>
-            {isUser ? 'سؤال السائل' :'المحقق الشرعي'}
+    <div className={`mb-6 flex w-full ${isUser ? 'justify-start' : 'justify-end'}`}>
+      <div className={`hx-bubble hx-up ${isUser ? 'hx-bubble-user' : 'hx-bubble-bot'}`}>
+        <div className="mb-3 flex items-center gap-2 pb-2" style={{ borderBottom: '1px solid var(--line)' }}>
+          <span className={`hx-avatar ${isUser ? 'user' : ''}`}>
+            {isUser ? <UserRound size={15} /> : <BookOpenCheck size={15} />}
           </span>
-          <div className="flex-1"></div>
-          
-
-          <span className='text-[14px] opacity-60 text-slate-400' >
+          <span className="hx-t-small" style={{ fontWeight: 800, color: 'var(--brand2)' }}>
+            {isUser ? 'سؤال السائل' : 'المحقق الشرعي'}
+          </span>
+          <div className="flex-1" />
+          <span className="hx-t-tiny" style={{ color: 'var(--muted)' }}>
             {message.timestamp.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}
           </span>
         </div>
 
-        <div className="leading-relaxed">
-          {isUser ? (
-            <div className="whitespace-pre-wrap text-sm md:text-base font-medium text-black">{message.content}</div>
-          ) : (
-            renderStructuredContent(message.content)
-          )}
-          
-          {message.status === 'loading' && (
-            <div className="flex items-center gap-3 mt-4 bg-emerald-50 p-3 rounded-lg border border-emerald-100">
-              <div className="flex gap-1">
-                <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce"></div>
-                <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce [animation-delay:-.3s]"></div>
-                <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce [animation-delay:-.5s]"></div>
-              </div>
-              <span className="text-[12px] text-emerald-800 font-bold">جاري مراجعة المصادر الشرعيه ...</span>
-            </div>
-          )}
-        </div>
+        {isUser ? (
+          <div className="hx-t-body whitespace-pre-wrap" style={{ fontWeight: 500 }}>{message.content}</div>
+        ) : (
+          renderBody()
+        )}
 
-        {!isUser && message.groundingUrls && message.groundingUrls.length > 0 && (
-          <div className="mt-4 pt-3 border-t border-slate-100">
-            <p className="text-[9px] font-bold text-slate-400 mb-2 uppercase tracking-tighter">روابط المراجعة:</p>
+        {!isUser && r?.urls && r.urls.length > 0 && (
+          <div className="mt-4 pt-3" style={{ borderTop: '1px solid var(--line)' }}>
+            <p className="hx-t-tiny mb-2 flex items-center gap-1" style={{ fontWeight: 800, color: 'var(--muted)' }}>
+              <Link2 size={13} /> روابط المراجعة
+            </p>
             <div className="flex flex-wrap gap-2">
-              {message.groundingUrls.map((url, idx) => (
-                <a 
-                  key={idx}
-                  href={url.uri}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[10px] hover:scale-110 bg-slate-50 text-slate-600 px-3 py-1 rounded-lg hover:bg-emerald-50 hover:text-emerald-700 transition-all border border-slate-200 hover:border-emerald-200 flex items-center gap-1 font-bold"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                  {url.title || 'المرجع'}
+              {r.urls.map((u, i) => (
+                <a key={i} href={u.uri} target="_blank" rel="noopener noreferrer" className="hx-link">
+                  {u.title || 'المرجع'}
                 </a>
               ))}
             </div>
